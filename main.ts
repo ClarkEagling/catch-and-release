@@ -36,11 +36,47 @@ sprites.onOverlap(SpriteKind.BadProjectile, SpriteKind.Player, function (sprite,
     }
 })
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
-    timer.throttle("catch", 300, function () {
-        catchReady = 0
-    })
-    timer.debounce("action", 300, function () {
+    timer.throttle("catch", 400, function () {
         catchReady = 1
+        mySprite.setImage(img`
+            . 5 5 5 . 5 5 5 5 . 5 5 5 . 
+            5 5 5 5 5 c c c c 5 5 5 5 5 
+            5 5 5 5 b c c c c b 5 5 5 5 
+            5 5 5 c 3 c c c c 3 c 5 5 5 
+            . 5 3 3 c c c c c c 3 3 5 . 
+            . 5 c c c c c c c c c c 5 . 
+            . 5 5 c c c c c c c c 5 5 . 
+            . 5 5 5 c c c c c c 5 5 5 . 
+            . 5 5 5 5 5 5 5 5 5 5 5 5 . 
+            . . 5 5 5 5 5 5 5 5 5 5 . . 
+            . . e 5 5 5 5 5 5 5 5 e . . 
+            . e 4 5 5 5 5 5 5 5 5 4 e . 
+            . 4 d 5 3 3 3 3 3 3 c d 4 . 
+            . 4 4 5 6 6 6 6 6 6 f 4 4 . 
+            . . . . 5 5 5 5 5 5 . . . . 
+            . . . . 5 5 . . 5 5 . . . . 
+            `)
+        timer.debounce("catch", 250, function () {
+            catchReady = 0
+            mySprite.setImage(img`
+                . 8 8 8 . f f f f . 8 8 8 . 
+                8 8 8 8 8 c c c c 8 8 8 8 8 
+                8 8 8 8 b c c c c b 8 8 8 8 
+                8 8 8 c 3 c c c c 3 c 8 8 8 
+                . 8 3 3 c c c c c c 3 3 8 . 
+                . 8 c c c c c c c c c c 8 . 
+                . 8 8 c c c c c c c c 8 8 . 
+                . 8 8 8 c c c c c c 8 8 8 . 
+                . 8 8 8 8 8 8 8 8 8 8 8 8 . 
+                . . 8 8 8 8 8 8 8 8 8 8 . . 
+                . . e 8 8 8 8 8 8 8 8 e . . 
+                . e 4 8 8 8 8 8 8 8 8 4 e . 
+                . 4 d 8 3 3 3 3 3 3 c d 4 . 
+                . 4 4 8 6 6 6 6 6 6 f 4 4 . 
+                . . . . c c c c c c . . . . 
+                . . . . c c . . c c . . . . 
+                `)
+        })
     })
 })
 statusbars.onStatusReached(StatusBarKind.Health, statusbars.StatusComparison.LTE, statusbars.ComparisonType.Percentage, 50, function (status) {
@@ -89,30 +125,34 @@ function MakeBadman () {
     badmanStatusbar.positionDirection(CollisionDirection.Bottom)
     badmanStatusbar.setOffsetPadding(-37, 5)
     badmanStatusbar.setLabel("Space Oyster")
+    badShotOn = 1
 }
 statusbars.onZero(StatusBarKind.Health, function (status) {
-    badMan.destroy(effects.fire, 2000)
+    scene.cameraShake(4, 2000)
+    badMan.destroy(effects.warmRadial, 2000)
     music.playSoundEffect(music.randomizeSound(music.createSoundEffect(WaveShape.Triangle, 608, 454, 255, 0, 688, SoundExpressionEffect.Vibrato, InterpolationCurve.Logarithmic)), SoundExpressionPlayMode.UntilDone)
     music.playSoundEffect(music.randomizeSound(music.createSoundEffect(WaveShape.Triangle, 608, 454, 255, 0, 688, SoundExpressionEffect.Vibrato, InterpolationCurve.Logarithmic)), SoundExpressionPlayMode.InBackground)
     music.playSoundEffect(music.randomizeSound(music.createSoundEffect(WaveShape.Triangle, 608, 454, 255, 0, 688, SoundExpressionEffect.Vibrato, InterpolationCurve.Logarithmic)), SoundExpressionPlayMode.UntilDone)
-    music.playSoundEffect(music.randomizeSound(music.createSoundEffect(WaveShape.Triangle, 608, 454, 255, 0, 688, SoundExpressionEffect.Vibrato, InterpolationCurve.Logarithmic)), SoundExpressionPlayMode.UntilDone)
+    music.playSoundEffect(music.randomizeSound(music.createSoundEffect(WaveShape.Triangle, 608, 454, 255, 0, 688, SoundExpressionEffect.Vibrato, InterpolationCurve.Logarithmic)), SoundExpressionPlayMode.InBackground)
+    music.playSoundEffect(music.createSoundEffect(WaveShape.Noise, 581, 176, 255, 85, 1000, SoundExpressionEffect.None, InterpolationCurve.Linear), SoundExpressionPlayMode.UntilDone)
+    badShotOn = 0
 })
 function MakeHero () {
     mySprite = sprites.create(img`
-        . f f f . f f f f . f f f . 
-        f f f f f c c c c f f f f f 
-        f f f f b c c c c b f f f f 
-        f f f c 3 c c c c 3 c f f f 
-        . f 3 3 c c c c c c 3 3 f . 
-        . f c c c c c c c c c c f . 
-        . f f c c c c c c c c f f . 
-        . f f f c c c c c c f f f . 
-        . f f f f f f f f f f f f . 
-        . . f f f f f f f f f f . . 
-        . . e f f f f f f f f e . . 
-        . e 4 f f f f f f f f 4 e . 
-        . 4 d f 3 3 3 3 3 3 c d 4 . 
-        . 4 4 f 6 6 6 6 6 6 f 4 4 . 
+        . 8 8 8 . 8 8 8 8 . 8 8 8 . 
+        8 8 8 8 8 c c c c 8 8 8 8 8 
+        8 8 8 8 b c c c c b 8 8 8 8 
+        8 8 8 c 3 c c c c 3 c 8 8 8 
+        . 8 3 3 c c c c c c 3 3 8 . 
+        . 8 c c c c c c c c c c 8 . 
+        . 8 8 c c c c c c c c 8 8 . 
+        . 8 8 8 c c c c c c 8 8 8 . 
+        . 8 8 8 8 8 8 8 8 8 8 8 8 . 
+        . . 8 8 8 8 8 8 8 8 8 8 . . 
+        . . e 8 8 8 8 8 8 8 8 e . . 
+        . e 4 8 8 8 8 8 8 8 8 4 e . 
+        . 4 d 8 3 3 3 3 3 3 c d 4 . 
+        . 4 4 8 6 6 6 6 6 6 f 4 4 . 
         . . . . c c c c c c . . . . 
         . . . . c c . . c c . . . . 
         `, SpriteKind.Player)
@@ -122,11 +162,12 @@ function MakeHero () {
     info.setLife(10)
 }
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
-    badmanStatusbar.value += -1
-    sprite.destroy()
+    badmanStatusbar.value += -10
+    sprite.destroy(effects.fire, 100)
     music.playSoundEffect(music.createSoundEffect(WaveShape.Noise, 865, 1, 255, 0, 150, SoundExpressionEffect.None, InterpolationCurve.Linear), SoundExpressionPlayMode.UntilDone)
 })
 let badShot: Sprite = null
+let badShotOn = 0
 let badmanStatusbar: StatusBarSprite = null
 let badMan: Sprite = null
 let catchReady = 0
@@ -135,24 +176,31 @@ let goodShot: Sprite = null
 effects.starField.startScreenEffect()
 MakeHero()
 MakeBadman()
+music.spooky.loop()
+game.onUpdate(function () {
+	
+})
 game.onUpdateInterval(777, function () {
-    badShot = sprites.createProjectileFromSprite(img`
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . . . . . . . . . . . . . . 
-        . . . 2 4 3 . . . . 3 4 2 . . . 
-        . . . a 2 4 3 3 . 3 4 2 a . . . 
-        . . . a . 4 . . 3 4 2 . a . . . 
-        . . . . a 2 4 3 4 2 . a . . . . 
-        . . . . . a 2 4 . 2 a . . . . . 
-        . . . . . . a 2 4 . a . . . . . 
-        . . . . . . a 2 2 a . . . . . . 
-        . . . . . . . a a . . . . . . . 
-        . . . . . . . . a . . . . . . . 
-        `, badMan, randint(-30, 30), randint(30, 100))
-    badShot.setKind(SpriteKind.BadProjectile)
+    if (badShotOn == 1) {
+        badShot = sprites.createProjectileFromSprite(img`
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . . 
+            . . . 2 4 3 . . . . 3 4 2 . . . 
+            . . . a 2 4 3 3 . 3 4 2 a . . . 
+            . . . a . 4 . . 3 4 2 . a . . . 
+            . . . . a 2 4 3 4 2 . a . . . . 
+            . . . . . a 2 4 . 2 a . . . . . 
+            . . . . . . a 2 4 . a . . . . . 
+            . . . . . . a 2 2 a . . . . . . 
+            . . . . . . . a a . . . . . . . 
+            . . . . . . . . a . . . . . . . 
+            `, badMan, randint(-30, 30), randint(30, 100))
+        badShot.setKind(SpriteKind.BadProjectile)
+        badShot.setFlag(SpriteFlag.AutoDestroy, true)
+    }
 })
